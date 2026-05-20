@@ -1,0 +1,26 @@
+name: Local macOS smoke
+
+on:
+  workflow_dispatch:
+
+jobs:
+  local-macos-smoke:
+    permissions:
+      contents: read
+    uses: ABD-Enterprises/enterprise-ai-standards/.github/workflows/reusable-local-macos-runner.yml@main
+    with:
+      job_name: Policy Forge public local macOS smoke
+      python_version: "3.12"
+      run_command: |
+        python3 - <<'PY'
+        from pathlib import Path
+
+        markdown_files = sorted(Path(".").rglob("*.md"))
+        workflow_files = sorted(Path(".github/workflows").glob("*.yml"))
+
+        print(f"markdown_files={len(markdown_files)}")
+        print(f"workflow_files={len(workflow_files)}")
+
+        assert markdown_files, "expected at least one markdown file"
+        assert workflow_files, "expected at least one workflow file"
+        PY
