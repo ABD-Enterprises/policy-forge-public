@@ -7,9 +7,10 @@ jobs:
   local-macos-smoke:
     permissions:
       contents: read
-    uses: ABD-Enterprises/enterprise-ai-standards/.github/workflows/reusable-local-macos-runner.yml@main
+    uses: ABD-Enterprises/orc/.github/workflows/reusable/orc-local-macos-runner.yml@main
     with:
       job_name: Policy Forge public local macOS smoke
+      runner_labels: '["self-hosted","macOS","local-build"]'
       python_version: "3.12"
       run_command: |
         python3 - <<'PY'
