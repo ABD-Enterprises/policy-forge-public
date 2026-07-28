@@ -10,7 +10,7 @@ jobs:
     uses: ABD-Enterprises/orc/.github/workflows/reusable/orc-local-macos-runner.yml@main
     with:
       job_name: Policy Forge public local macOS smoke
-      runner_labels: '["self-hosted","macOS","local-build"]'
+      runner_labels: '["macos-latest"]'
       python_version: "3.12"
       run_command: |
         python3 - <<'PY'
