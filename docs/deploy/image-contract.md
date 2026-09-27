@@ -15,6 +15,8 @@ nginx serves the UI at `/`, proxies `/api/` to the API with the `/api` prefix st
 
 supervisord runs three programs: `engine` (API), `integration-scheduler`, and `nginx`. The scheduler needs CPU between requests: on platforms that throttle idle CPU, for example Cloud Run request-based billing, keep CPU always allocated and at least one instance.
 
+If the API (`engine`) or `nginx` reaches the supervisord FATAL state (it keeps crashing on start), a supervisord event listener stops the container so the orchestrator replaces it, instead of the container staying up and returning `502`. The container exits with code `0` in that case: ECS, Azure Container Apps and Cloud Run replace an exited container regardless of exit code, but a plain `docker run --restart=on-failure` will not restart it; use `--restart=unless-stopped` there.
+
 ## Health endpoints
 
 All endpoints are under `/api` except `/healthz`.
