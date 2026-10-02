@@ -10,6 +10,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
-        with:
-          args: --verbose --no-progress "**/*.md"
+      # lycheeverse/lychee-action is not an allowed action (see markdown-lint.yml), so
+      # install the release binary directly and verify its published checksum.
+      - name: Install lychee
+        run: |
+          LYCHEE_TAG=lychee-v0.24.2
+          case "$(uname -m)" in
+            x86_64) LYCHEE_ARCH=x86_64 ;;
+            aarch64|arm64) LYCHEE_ARCH=aarch64 ;;
+            *) echo "unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+          esac
+          ASSET="lychee-${LYCHEE_ARCH}-unknown-linux-gnu.tar.gz"
+          cd /tmp
+          curl -sSfL -O "https://github.com/lycheeverse/lychee/releases/download/${LYCHEE_TAG}/${ASSET}"
+          curl -sSfL -O "https://github.com/lycheeverse/lychee/releases/download/${LYCHEE_TAG}/${ASSET}.sha256"
+          sha256sum -c "${ASSET}.sha256"
+          tar -xzf "${ASSET}"
+          sudo mv "lychee-${LYCHEE_ARCH}-unknown-linux-gnu/lychee" /usr/local/bin/lychee
+          lychee --version
+
+      - name: Check links
+        run: lychee --verbose --no-progress "**/*.md"
