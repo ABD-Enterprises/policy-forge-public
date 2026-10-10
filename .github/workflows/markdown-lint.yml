@@ -5,11 +5,22 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   markdown-lint:
-    runs-on: ubuntu-latest
+    # LINUX_RUNNER_LABELS is an org variable holding a JSON array of self-hosted runner labels.
+    runs-on: ${{ fromJSON(vars.LINUX_RUNNER_LABELS) }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      # The self-hosted Linux runners do not ship Node; setup-node installs it
+      # into the runner's tool cache without root.
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 22
       # The org only allows GitHub-owned actions, verified creators and ABD-Enterprises/*;
       # DavidAnson/markdownlint-cli2-action is none of those, so the job could not even start.
       # Run the same markdownlint-cli2 release the action v16.0.0 wraps, directly.

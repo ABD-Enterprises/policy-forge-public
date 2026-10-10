@@ -5,13 +5,20 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   link-check:
-    runs-on: ubuntu-latest
+    # LINUX_RUNNER_LABELS is an org variable holding a JSON array of self-hosted runner labels.
+    runs-on: ${{ fromJSON(vars.LINUX_RUNNER_LABELS) }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       # lycheeverse/lychee-action is not an allowed action (see markdown-lint.yml), so
-      # install the release binary directly and verify its published checksum.
+      # install the release binary for the runner's architecture into a job-scoped
+      # directory (no root needed) and verify its published checksum.
       - name: Install lychee
         run: |
           LYCHEE_TAG=lychee-v0.24.2
@@ -20,14 +27,18 @@ jobs:
             aarch64|arm64) LYCHEE_ARCH=aarch64 ;;
             *) echo "unsupported architecture: $(uname -m)" >&2; exit 1 ;;
           esac
-          ASSET="lychee-${LYCHEE_ARCH}-unknown-linux-gnu.tar.gz"
-          cd /tmp
-          curl -sSfL -O "https://github.com/lycheeverse/lychee/releases/download/${LYCHEE_TAG}/${ASSET}"
-          curl -sSfL -O "https://github.com/lycheeverse/lychee/releases/download/${LYCHEE_TAG}/${ASSET}.sha256"
+          ARCHIVE="lychee-${LYCHEE_ARCH}-unknown-linux-gnu"
+          ASSET="${ARCHIVE}.tar.gz"
+          BASE_URL="https://github.com/lycheeverse/lychee/releases/download/${LYCHEE_TAG}"
+          INSTALL_DIR="${RUNNER_TEMP}/lychee"
+          mkdir -p "${INSTALL_DIR}"
+          cd "${INSTALL_DIR}"
+          curl -sSfL -O "${BASE_URL}/${ASSET}"
+          curl -sSfL -O "${BASE_URL}/${ASSET}.sha256"
           sha256sum -c "${ASSET}.sha256"
           tar -xzf "${ASSET}"
-          sudo mv "lychee-${LYCHEE_ARCH}-unknown-linux-gnu/lychee" /usr/local/bin/lychee
-          lychee --version
+          echo "${INSTALL_DIR}/${ARCHIVE}" >> "$GITHUB_PATH"
+          "${INSTALL_DIR}/${ARCHIVE}/lychee" --version
 
       - name: Check links
         run: lychee --verbose --no-progress "**/*.md"
