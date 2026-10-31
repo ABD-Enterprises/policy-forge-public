@@ -32,6 +32,7 @@ PR title prefix matches the highest-tier label added:
 
 ### [INTERNAL]
 
+- Regenerate the fleet-core block in `AGENTS.md` to the current standard.
 - Refresh the generated fleet core while preserving public repository guidance.
 
 - Route the four workflows to the org's self-hosted runners (`LINUX_RUNNER_LABELS`, `MACOS_RUNNER_LABELS`); install Node via `actions/setup-node` and lychee and gitleaks as checksum-verified, architecture-matched binaries in user space.
