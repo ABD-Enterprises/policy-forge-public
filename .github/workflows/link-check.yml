@@ -8,10 +8,17 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # Supersede an in-flight pull-request run; never cancel a push-to-main run.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   link-check:
     # LINUX_RUNNER_LABELS is an org variable holding a JSON array of self-hosted runner labels.
     runs-on: ${{ fromJSON(vars.LINUX_RUNNER_LABELS) }}
+    # Measured 2026-10-31 over the last 8 successful runs: at most 0.2 min of running time.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:

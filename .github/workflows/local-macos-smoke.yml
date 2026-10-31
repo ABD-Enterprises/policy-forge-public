@@ -10,6 +10,8 @@ jobs:
     # MACOS_RUNNER_LABELS is an org variable holding a JSON array of self-hosted
     # macOS build/test runner labels. This job only reads the tree; it never signs.
     runs-on: ${{ fromJSON(vars.MACOS_RUNNER_LABELS) }}
+    # No recorded run (manual workflow, currently disabled); the job only counts files.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
