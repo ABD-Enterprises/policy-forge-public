@@ -28,7 +28,7 @@ PR title prefix matches the highest-tier label added:
 
 ### [FIX]
 
-- None.
+- Point `SECURITY.md` and `docs/security/vulnerability-disclosure.md` at the enabled GitHub private vulnerability reporting channel instead of an unnamed one.
 
 ### [INTERNAL]
 
